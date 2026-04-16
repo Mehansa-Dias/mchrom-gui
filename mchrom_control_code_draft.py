@@ -5,6 +5,7 @@ from lib.Xeryon.Xeryon import Stage, Units
 import threading
 import atexit
 import traceback
+import time
 userInputZeroVal = 0 #this is the set zero position that the user can set in the program
 atPhysicalLimit  = False
 controller = None
@@ -90,12 +91,13 @@ def cleanup():
     if controller:
         controller.stop()
 
-try:
-    init()
-    # code to do stuff
-except Exception as e:
-    print("it broke")
-    print(e)
-    traceback.format_exc()
-finally:
-    atexit.register(cleanup)
+if __name__ == "__main__":
+    try:
+        init()
+        # code to do stuff
+    except Exception as e:
+        print("monochrom controller broke")
+        print(e)
+        traceback.format_exc()
+    finally:
+        atexit.register(cleanup)

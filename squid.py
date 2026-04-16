@@ -27,8 +27,8 @@ import pandas as pd
 import numpy as np
 import traceback
 import atexit
-sys.path.append("Home/Documents/Monochromator/Monochromator_control_code/src")
-import src.mchrom_control_code_draft as mchrom
+
+inst_global = None
 
 
 # ── Default configuration ────────────────────────────────────────────────────     bnbnnbbnnb
@@ -268,6 +268,7 @@ def prompt_output(args: argparse.Namespace) -> tuple[str, str]:
 
 
 def init():
+    global inst_global
     args = parse_args()
 
     # Update config from CLI
@@ -282,21 +283,26 @@ def init():
 
 
     # Open port and instrument
-    inst = open_instrument(CONFIG)
-    initialise_instrument(inst)
+    inst_global = open_instrument(CONFIG)
+    initialise_instrument(inst_global)
     # turn source output on
+    return inst_global
 
 
 def end():
-    open_instrument(CONFIG).close()
-    print("[INFO] Serial port closed.")
+    global inst_global
+    if inst_global:
+        inst_global.close()
+        print("[INFO] Serial port closed.")
 
-try:
-    init()
-    # code to do stuff
-except Exception as e:
-    print("something in squid broke")
-    print(e)
-    traceback.format_exc()
-finally:
-    atexit.register(end)
+
+if __name__ == "__main__":
+    try:
+        init()
+        # code to do stuff
+    except Exception as e:
+        print("something in squid broke")
+        print(e)
+        traceback.format_exc()
+    finally:
+        atexit.register(end)

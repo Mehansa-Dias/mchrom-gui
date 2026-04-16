@@ -2,8 +2,11 @@ import squid
 import numpy as np
 import time
 import sys
+sys.path.append("Home/Documents/Monochromator/Monochromator_control_code/src")
+import src.mchrom_control_code_draft as mchrom
 
-squid.mchrom.init()
+mchrom.init()
+inst = squid.init()
 
 start = float(input("Start: "))
 end = float(input("End: "))
@@ -16,12 +19,10 @@ print(angles)
 
 with open(file_name, "a") as file:
 
-    inst = squid.open_instrument(squid.CONFIG)
-    squid.initialise_instrument(inst)
 
     for i in angles:
 
-        squid.mchrom.goTo(i)
+        mchrom.goTo(i)
         time.sleep(0.5)
 
         timestamps, values = squid.acquire(inst, no_samples, squid.CONFIG["delay"])
