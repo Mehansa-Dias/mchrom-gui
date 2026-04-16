@@ -291,12 +291,9 @@ def main() -> None:
     # turn source output on
     print(angles)
 
-    avg = []
-    std = []
-
     #time.sleep(10)
 
-    with open("Home\\Documents\\Monochromator\\Monochromdata\\week_rw-thurs-summary.txt", "a") as file:
+    with open("week_rw-thurs-summary.txt", "a") as file:
 
         for i in angles:
 
@@ -311,7 +308,10 @@ def main() -> None:
 
             arr = np.array(values)
 
-            file.write(i,",",np.mean(arr),",",np.std(arr),"\n")
+            string = str(i) + "," + str(np.mean(arr)) + "," +  str(np.std(arr)) +"\n"
+
+            file.write(string)
+            file.flush()
 
 
     inst.close()
