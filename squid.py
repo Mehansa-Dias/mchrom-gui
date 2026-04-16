@@ -25,6 +25,8 @@ import csv
 import h5py
 import pandas as pd
 import numpy as np
+import traceback
+import atexit
 sys.path.append("Home/Documents/Monochromator/Monochromator_control_code/src")
 import src.mchrom_control_code_draft as mchrom
 
@@ -265,7 +267,7 @@ def prompt_output(args: argparse.Namespace) -> tuple[str, str]:
     return filename, fmt
 
 
-def main() -> None:
+def init():
     args = parse_args()
 
     # Update config from CLI
@@ -278,45 +280,23 @@ def main() -> None:
     print("  Keithley 6487 RS-232 Current Logger")
     print("=" * 60)
 
-    # Prompt for output details before acquisition starts
-    filename, fmt = "test", "csv"
-
-    #angles = np.array(np.arange(-15,15.0001,0.1))
-    angles = np.array(np.arange(-15,15.0001,0.5))
-
 
     # Open port and instrument
     inst = open_instrument(CONFIG)
     initialise_instrument(inst)
     # turn source output on
-    print(angles)
-
-    #time.sleep(10)
-
-    with open("week_rw-thurs-summary.txt", "a") as file:
-
-        for i in angles:
-
-            mchrom.goTo(i)
-            time.sleep(0.5)
-
-            timestamps, values = acquire(inst, CONFIG["num_samples"], CONFIG["delay"])
-
-            if not values:
-                print("[ERROR] No data collected. Nothing saved.")
-                sys.exit(1)
-
-            arr = np.array(values)
-
-            string = str(i) + "," + str(np.mean(arr)) + "," +  str(np.std(arr)) +"\n"
-
-            file.write(string)
-            file.flush()
 
 
-    inst.close()
+def end():
+    open_instrument(CONFIG).close()
     print("[INFO] Serial port closed.")
 
-
-if __name__ == "__main__":
-    main()
+try:
+    init()
+    # code to do stuff
+except Exception as e:
+    print("something in squid broke")
+    print(e)
+    traceback.format_exc()
+finally:
+    atexit.register(end)
