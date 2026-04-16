@@ -296,40 +296,22 @@ def main() -> None:
 
     #time.sleep(10)
 
-    for i in angles:
+    with open("Home\\Documents\\Monochromator\\Monochromdata\\week_rw-thurs-summary.txt", "a") as file:
 
-        mchrom.goTo(i)
-        time.sleep(0.5)
+        for i in angles:
 
-        timestamps, values = acquire(inst, CONFIG["num_samples"], CONFIG["delay"])
+            mchrom.goTo(i)
+            time.sleep(0.5)
 
-        if not values:
-            print("[ERROR] No data collected. Nothing saved.")
-            sys.exit(1)
+            timestamps, values = acquire(inst, CONFIG["num_samples"], CONFIG["delay"])
 
-        # Save
-        if fmt == "csv":
-            save_csv(f"Home\\Documents\\Monochromator\\Monochromdata\\test-{i}", timestamps, values)
-        else:
-            save_h5(filename, timestamps, values)
+            if not values:
+                print("[ERROR] No data collected. Nothing saved.")
+                sys.exit(1)
 
-        # Quick summary
-        arr = np.array(values)
-        print("\n── Summary ─────────────────────────────────────")
-        print(f"  Samples   : {len(arr)}")
-        print(f"  Mean      : {arr.mean():.6E} A")
-        print(f"  Std dev   : {arr.std():.6E} A")
-        print(f"  Min       : {arr.min():.6E} A")
-        print(f"  Max       : {arr.max():.6E} A")
-        print("────────────────────────────────────────────────\n")
+            arr = np.array(values)
 
-        avg.append(arr.mean())
-        std.append(arr.std())
-
-
-
-    np.savetxt("Home\\Documents\\Monochromator\\Monochromdata\\week_rw-thurs-summary.txt", np.column_stack((angles, avg, std)), delimiter=",")
-
+            file.write(i,",",np.mean(arr),",",np.std(arr),"\n")
 
 
     inst.close()
